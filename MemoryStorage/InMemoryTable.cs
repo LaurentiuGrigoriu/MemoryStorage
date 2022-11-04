@@ -2,7 +2,7 @@
 
 namespace MemoryStorage
 {
-    internal class InMemoryTable<T>
+    internal class InMemoryTable<T> : iInMemoryTable
         where T : class, iEntry
     {
         private int _nextId = 1;
@@ -17,17 +17,37 @@ namespace MemoryStorage
             Table = new ConcurrentDictionary<int, T>();
         }
 
+        private bool Validate(iEntry entry)
+        {
+            if (entry.GetType() != typeof(T))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         /* return the positive id if successful
          * return -1 if unsuccessfull 
          */
-        public int Create(T entry)
+        public bool Create(ref iEntry entry)
         {
-            Table.TryAdd(_nextId, entry);
+            if(!Validate(entry))
+            {
+                throw new ArgumentException($"Wrong argument in Create function for {typeof(T)} type.");
+            }
 
-            return _nextId++;
+            T e = (T)entry;
+            
+            e.Id = _nextId;
+            Table.TryAdd(_nextId, e);
+
+            _nextId++;
+
+            return true;
         }
 
-        public T? Read(int id)
+        public iEntry? Read(int id)
         {
             if (Table.ContainsKey(id))
             {
@@ -37,7 +57,7 @@ namespace MemoryStorage
             return null;
         }
 
-        public T? Read(string id)
+        public iEntry? Read(string id)
         {
             int readId = -1;
             
@@ -49,11 +69,18 @@ namespace MemoryStorage
             return null;
         }
 
-        public bool Update(T update)
+        public bool Update(iEntry update)
         {
-            if (Table.ContainsKey(update.Id))
+            if (!Validate(update))
             {
-                Table[update.Id] = update;
+                throw new ArgumentException($"Wrong argument in Uodate function for {typeof(T)} type.");
+            }
+
+            T u = (T)update;
+            
+            if (Table.ContainsKey(u.Id))
+            {
+                Table[u.Id] = u;
                 return true;
             }
 

@@ -9,23 +9,11 @@ namespace MemoryStorage
     internal class LCCommand : iEntry
     {
         public int Id { get; set; }
-        public string Command { get; set; }
+        public string? Command { get; set; }
         public CommandStatus? Status { get; set; }
-        public string Observation { get; set; }
-        public string ScannerName { get; set; }
+        public string? Observation { get; set; }
+        public string? ScannerName { get; set; }
         public DateTime? CreatedOn { get; set; }
-        public string Token { get; set; }
-
-        public LCCommand(int id, string command, CommandStatus? status, string observation, string scannerName, DateTime? createdOn, string token)
-        {
-            Id = id;
-            Command = command;
-            Status = status;
-            Observation = observation;
-            ScannerName = scannerName;
-            CreatedOn = createdOn;
-            Token = token;
-        }
 
         public bool Update(iEntry command)
         {
@@ -54,10 +42,17 @@ namespace MemoryStorage
             if (cmd.CreatedOn != null)
                 CreatedOn = cmd.CreatedOn;
 
-            if (cmd.Token != null)
-                Token = cmd.Token;
-
             return true;
+        }
+
+        public void Print()
+        {
+            Console.WriteLine($"\tId={Id}");
+            Console.WriteLine($"\tCommand={Command}");
+            Console.WriteLine($"\tStatus={Status}");
+            Console.WriteLine($"\tObservation={Observation}");
+            Console.WriteLine($"\tScannerName={ScannerName}");
+            Console.WriteLine($"\tCreatedOn={CreatedOn}");
         }
     }
 }

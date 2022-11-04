@@ -10,6 +10,8 @@ namespace MemoryStorage
     {
         int Id { get; set; }
 
-        bool Update(iEntry entry);
+        bool UpdatePartial(iEntry entry);
+
+        bool Match(iEntry filter);
     }
 }

@@ -87,13 +87,25 @@ namespace MemoryStorage
             return false;
         }
 
+        public bool Update(iEntry update, iEntry filter)
+        {
+            foreach(int id in Table.Keys)
+            {
+                if (Table[id].Match(filter))
+                {
+                    if (!Table[id].UpdatePartial(update))
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
         public bool Delete(int id)
         {
             if (Table.ContainsKey(id))
             {
-                T? value;
-
-                return Table.TryRemove(id, out value);
+                return Table.TryRemove(id, out _);
             }
 
             return true;

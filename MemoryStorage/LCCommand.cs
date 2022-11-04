@@ -15,7 +15,7 @@ namespace MemoryStorage
         public string? ScannerName { get; set; }
         public DateTime? CreatedOn { get; set; }
 
-        public bool Update(iEntry command)
+        public bool UpdatePartial(iEntry command)
         {
             if (command.GetType() != typeof(LCCommand))
             {
@@ -24,7 +24,7 @@ namespace MemoryStorage
 
             LCCommand cmd = (LCCommand)command;
 
-            if (cmd.Id != Id)
+            if (cmd.Id != 0 && cmd.Id != Id)
                 return false;
 
             if (cmd.Command != null)
@@ -41,6 +41,36 @@ namespace MemoryStorage
 
             if (cmd.CreatedOn != null)
                 CreatedOn = cmd.CreatedOn;
+
+            return true;
+        }
+
+        public bool Match(iEntry filter)
+        {
+            if (filter.GetType() != typeof(LCCommand))
+            {
+                throw new ArgumentException("Wrong argument in LCCommand.Match");
+            }
+
+            LCCommand f = (LCCommand)filter;
+
+            if (f.Id != 0 && f.Id != Id)
+                return false;
+
+            if (f.Command != null && f.Command != Command)
+                return false;
+
+            if (f.Status != null && f.Status != Status)
+                return false;
+
+            if (f.Observation != null && f.Observation != Observation)
+                return false;
+
+            if (f.ScannerName != null && f.ScannerName != ScannerName)
+                return false;
+
+            if (f.CreatedOn != null && f.CreatedOn != CreatedOn)
+                return false;
 
             return true;
         }

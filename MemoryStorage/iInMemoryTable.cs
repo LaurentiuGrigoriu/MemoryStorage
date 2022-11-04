@@ -14,6 +14,7 @@ namespace MemoryStorage
         iEntry? Read(int id);
         iEntry? Read(string id);
         bool Update(iEntry update);
+        bool Update(iEntry update, iEntry filter);
         bool Delete(int id);
     }
 }

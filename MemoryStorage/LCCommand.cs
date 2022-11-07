@@ -15,7 +15,7 @@ namespace MemoryStorage
         public string? ScannerName { get; set; }
         public DateTime? CreatedOn { get; set; }
 
-        public bool UpdatePartial(iEntry command)
+        public bool Update(iEntry command, bool ignoreId = true)
         {
             if (command.GetType() != typeof(LCCommand))
             {
@@ -24,7 +24,7 @@ namespace MemoryStorage
 
             LCCommand cmd = (LCCommand)command;
 
-            if (cmd.Id != 0 && cmd.Id != Id)
+            if (!ignoreId && cmd.Id != Id)
                 return false;
 
             if (cmd.Command != null)

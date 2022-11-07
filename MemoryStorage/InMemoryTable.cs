@@ -27,8 +27,8 @@ namespace MemoryStorage
             return true;
         }
 
-        /* return the positive id if successful
-         * return -1 if unsuccessfull 
+        /* return true if successful, false otherwise
+         * Id field is automatically generated, it doesn't take the parameter Id value
          */
         public bool Create(ref iEntry entry)
         {
@@ -40,11 +40,13 @@ namespace MemoryStorage
             T e = (T)entry;
             
             e.Id = _nextId;
-            Table.TryAdd(_nextId, e);
+            if (Table.TryAdd(_nextId, e))
+            {
+                _nextId++;
+                return true;
+            }
 
-            _nextId++;
-
-            return true;
+            return false;
         }
 
         public iEntry? Read(int id)
@@ -69,6 +71,23 @@ namespace MemoryStorage
             return null;
         }
 
+        // return list fulfilling the filtering condition
+        public List<iEntry> Read(iEntry filter)
+        {
+            List<T> list = new List<T>();
+
+            foreach (int id in Table.Keys)
+            {
+                if (Table[id].Match(filter))
+                {
+                    list.Add(Table[id]);
+                }
+            }
+
+            return list.Cast<iEntry>().ToList();
+        }
+
+        // only updates the fields that are not null
         public bool Update(iEntry update)
         {
             if (!Validate(update))
@@ -80,25 +99,10 @@ namespace MemoryStorage
             
             if (Table.ContainsKey(u.Id))
             {
-                Table[u.Id] = u;
-                return true;
+                return Table[u.Id].Update(update);
             }
 
             return false;
-        }
-
-        public bool Update(iEntry update, iEntry filter)
-        {
-            foreach(int id in Table.Keys)
-            {
-                if (Table[id].Match(filter))
-                {
-                    if (!Table[id].UpdatePartial(update))
-                        return false;
-                }
-            }
-
-            return true;
         }
 
         public bool Delete(int id)

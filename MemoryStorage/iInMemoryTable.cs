@@ -11,10 +11,14 @@ namespace MemoryStorage
         string Name { get; set; }
 
         bool Create(ref iEntry entry);
+
         iEntry? Read(int id);
         iEntry? Read(string id);
+        public List<iEntry> Read(iEntry filter);
+
+        // only updates the fields that are not null
         bool Update(iEntry update);
-        bool Update(iEntry update, iEntry filter);
+
         bool Delete(int id);
     }
 }

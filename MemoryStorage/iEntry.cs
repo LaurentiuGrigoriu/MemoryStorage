@@ -10,7 +10,8 @@ namespace MemoryStorage
     {
         int Id { get; set; }
 
-        bool UpdatePartial(iEntry entry);
+        /* Only update the entry fields that are not null */
+        bool Update(iEntry entry, bool ignoreId = true);
 
         bool Match(iEntry filter);
     }

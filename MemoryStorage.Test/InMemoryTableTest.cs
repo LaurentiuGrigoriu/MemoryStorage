@@ -74,7 +74,7 @@ namespace MemoryStorage.Test
                 Assert.Equal(CommandStatus.Running, openCmdsList[i].Status);
                 Assert.True(indexList?.Contains(openCmdsList[i].Id));
 
-                Assert.True(indexList.Remove(openCmdsList[i].Id));
+                Assert.True(indexList?.Remove(openCmdsList[i].Id));
             }
 
             Assert.Empty(indexList);
@@ -112,12 +112,12 @@ namespace MemoryStorage.Test
         }
 
         [Theory]
-        [MemberData(nameof(TestData))]
+        [ClassData(typeof(InMemoryTableTestData))]
         public void CreateReadCompareSeveralEntries(IEntry _, IEntry[] operands)
         {
             IEntry entry = operands[0];
 
-            for (int i = 1; i <= 100_000; i++)   // 100 000 size table
+            for (int i = 1; i <= 100_000; i++)   // Create table with 100_000 entries 
             {
                 Assert.True(_tut.Create(ref entry));
 
@@ -129,71 +129,30 @@ namespace MemoryStorage.Test
         }
 
         [Theory]
-        [MemberData(nameof(TestData))]
+        [ClassData(typeof(InMemoryTableTestData))]
         public void CreateUpdateReadCompareEntry(IEntry result, IEntry[] operands)
         {
             IEntry entry = operands[0];
             IEntry update = operands[1];
 
             Assert.True(_tut.Create(ref entry));
+            
+            // Id is generated @ Creation, independently of entry.Id
             update.Id = entry.Id;
+            result.Id = entry.Id;
 
-            LCCommand? cmd = (LCCommand?)_tut.Copy(entry.Id);
-
-            Assert.NotNull(cmd);
-            Assert.True(cmd.Match(entry));
+            // entry points to the actual entry in the list and will update its members
+            // so make here a copy of the initial entry
+            LCCommand? initialEntry = (LCCommand?)_tut.Copy(entry.Id);
+            Assert.NotNull(initialEntry);
+            Assert.True(initialEntry.Match(entry));
 
             Assert.True(_tut.Update(update));
             LCCommand? cmdUpdated = (LCCommand?)_tut.Read(entry.Id);
-            Assert.False(cmdUpdated.Match(cmd));
+            Assert.False(cmdUpdated.Match(initialEntry));
+            
+            Assert.True(cmdUpdated.Match(result));
         }
 
-
-        // create 100 test data-sets
-        public static IEnumerable<object[]> TestData()
-        {
-            Random rnd = new();
-
-            for (int i = 1; i <= 100; i++)
-            {
-                string command = $"cmd {i}";
-                CommandStatus status = (CommandStatus)(i % 5);
-                string observation = $"Observation {i}";
-                string scannerName = $"SCNR00{i}";
-                DateTime createdOn = DateTime.Now;
-
-                IEntry entry = new LCCommand()
-                {
-                    Command = command,
-                    Status = status,
-                    Observation = observation,
-                    ScannerName = scannerName,
-                    CreatedOn = createdOn
-                };
-
-                int mask = rnd.Next(1, 32);     // 5 bits random number
-                IEntry update = new LCCommand()
-                {
-                    Command = ((mask >> 0) & 0x1) == 0x1 ? command + "01" : null,
-                    Status = ((mask >> 1) & 0x1) == 0x1 ? (CommandStatus)((i + 1) % 5) : null,
-                    Observation = ((mask >> 2) & 0x1) == 0x1 ? observation + "__" : null,
-                    ScannerName = ((mask >> 3) & 0x1) == 0x1 ? scannerName + "00" : null,
-                    CreatedOn = ((mask >> 4) & 0x1) == 0x1 ? createdOn.AddMinutes(1) : null
-                };
-
-                IEntry result = new LCCommand()
-                {
-                    Command = ((mask >> 0) & 0x1) == 0x1 ? command + "01" : command,
-                    Status = ((mask >> 1) & 0x1) == 0x1 ? (CommandStatus)((i + 1) % 5) : status,
-                    Observation = ((mask >> 2) & 0x1) == 0x1 ? observation + "__" : observation,
-                    ScannerName = ((mask >> 3) & 0x1) == 0x1 ? scannerName + "00" : scannerName,
-                    CreatedOn = ((mask >> 4) & 0x1) == 0x1 ? createdOn.AddMinutes(1) : createdOn
-                };
-
-                yield return new object[] { result, new IEntry[] { entry, update } };
-            }
-
-
-        }
     }
 }

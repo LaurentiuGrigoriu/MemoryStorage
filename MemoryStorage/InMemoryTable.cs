@@ -2,8 +2,8 @@
 
 namespace MemoryStorage
 {
-    internal class InMemoryTable<T> : iInMemoryTable
-        where T : class, iEntry
+    public class InMemoryTable<T> : IInMemoryTable
+        where T : class, IEntry
     {
         private int _nextId = 1;
 
@@ -17,7 +17,7 @@ namespace MemoryStorage
             Table = new ConcurrentDictionary<int, T>();
         }
 
-        private bool Validate(iEntry entry)
+        private bool Validate(IEntry entry)
         {
             if (entry.GetType() != typeof(T))
             {
@@ -28,9 +28,9 @@ namespace MemoryStorage
         }
 
         /* return true if successful, false otherwise
-         * Id field is automatically generated, it doesn't take the parameter Id value
+         * Id field is automatically generated, entry.Id value doesn't count
          */
-        public bool Create(ref iEntry entry)
+        public bool Create(ref IEntry entry)
         {
             if(!Validate(entry))
             {
@@ -49,7 +49,8 @@ namespace MemoryStorage
             return false;
         }
 
-        public iEntry? Read(int id)
+        // returns the actual element in the table, rather than a copy of it
+        public IEntry? Read(int id)
         {
             if (Table.ContainsKey(id))
             {
@@ -59,7 +60,13 @@ namespace MemoryStorage
             return null;
         }
 
-        public iEntry? Read(string id)
+        public IEntry? Copy(int id)
+        {
+            return Table[id]?.Copy();
+        }
+
+        // returns the actual element in the table, rather than a copy of it
+        public IEntry? Read(string id)
         {
             int readId = -1;
             
@@ -72,7 +79,7 @@ namespace MemoryStorage
         }
 
         // return list fulfilling the filtering condition
-        public List<iEntry> Read(iEntry filter)
+        public List<IEntry> Read(IEntry filter)
         {
             List<T> list = new List<T>();
 
@@ -84,11 +91,13 @@ namespace MemoryStorage
                 }
             }
 
-            return list.Cast<iEntry>().ToList();
+            return list.Cast<IEntry>().ToList();
         }
 
-        // only updates the fields that are not null
-        public bool Update(iEntry update)
+        // only updates the fields that are not null;
+        // the Id must be valid (Id > 0)
+        // return false If update.Id not found
+        public bool Update(IEntry update)
         {
             if (!Validate(update))
             {
@@ -105,6 +114,7 @@ namespace MemoryStorage
             return false;
         }
 
+        // idempotent: return true is Id entry was deleted, even if it was already deleted/unexistent
         public bool Delete(int id)
         {
             if (Table.ContainsKey(id))
@@ -113,6 +123,11 @@ namespace MemoryStorage
             }
 
             return true;
+        }
+
+        public void Clear()
+        {
+            Table.Clear();
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MemoryStorage
 {
-    internal class LCCommand : iEntry
+    public class LCCommand : IEntry
     {
         public int Id { get; set; }
         public string? Command { get; set; }
@@ -15,7 +15,20 @@ namespace MemoryStorage
         public string? ScannerName { get; set; }
         public DateTime? CreatedOn { get; set; }
 
-        public bool Update(iEntry command, bool ignoreId = true)
+        public IEntry Copy()
+        {
+            return new LCCommand()
+            { 
+                Id = Id, 
+                Command = Command, 
+                Status = Status, 
+                Observation = Observation,
+                ScannerName = ScannerName,
+                CreatedOn = CreatedOn
+            };
+        }
+
+        public bool Update(IEntry command, bool ignoreId = false)
         {
             if (command.GetType() != typeof(LCCommand))
             {
@@ -45,7 +58,7 @@ namespace MemoryStorage
             return true;
         }
 
-        public bool Match(iEntry filter)
+        public bool Match(in IEntry filter)
         {
             if (filter.GetType() != typeof(LCCommand))
             {

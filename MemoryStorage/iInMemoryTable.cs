@@ -6,18 +6,21 @@ using System.Threading.Tasks;
 
 namespace MemoryStorage
 {
-    internal interface iInMemoryTable
+    internal interface IInMemoryTable
     {
         string Name { get; set; }
 
-        bool Create(ref iEntry entry);
+        bool Create(ref IEntry entry);
 
-        iEntry? Read(int id);
-        iEntry? Read(string id);
-        public List<iEntry> Read(iEntry filter);
+        IEntry? Read(int id);
+        IEntry? Read(string id);
+        IEntry? Copy(int id);
+
+
+        public List<IEntry> Read(IEntry filter);
 
         // only updates the fields that are not null
-        bool Update(iEntry update);
+        bool Update(IEntry update);
 
         bool Delete(int id);
     }

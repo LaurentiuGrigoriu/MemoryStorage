@@ -42,6 +42,8 @@ namespace MemoryStorage.Test
 
         }
 
+
+        /* Using inline data */
         [Theory]
         [InlineData(1, "cmd 0", CommandStatus.New, "LCCommand observation 0", "SCNR26739856")]
         [InlineData(7, "cmd 6", CommandStatus.Open, "LCCommand observation 6", "SCNR26739856")]
@@ -111,6 +113,8 @@ namespace MemoryStorage.Test
             Assert.True(_tut.Delete(3));
         }
 
+        /* Using class data 
+         * The class must be IEnumerable<Object[]> */
         [Theory]
         [ClassData(typeof(InMemoryTableTestData))]
         public void CreateReadCompareSeveralEntries(IEntry _, IEntry[] operands)

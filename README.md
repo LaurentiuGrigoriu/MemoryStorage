@@ -1,3 +1,2 @@
 # MemoryStorage
-Test code
-CRUD memory storage 
+Basic CRUD memory storage 

@@ -16,7 +16,7 @@ namespace MemoryStorage
             return MemoryDB.TryAdd(name, table);
         }
 
-        public bool TryGet(string name, out IInMemoryTable table)
+        public bool TryGet(string name, out IInMemoryTable? table)
         {
             return MemoryDB.TryGetValue(name, out table);
         }

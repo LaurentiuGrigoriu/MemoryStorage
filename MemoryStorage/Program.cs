@@ -30,9 +30,9 @@ for (int i = 0; i < 20; i++)
 
 // =============== READ TABLE ===============
 IInMemoryTable? iTbl;
-if (memoryStorage.TryGet("LCCommandQueueItems", out iTbl))
+if (memoryStorage.TryGet("LCCommandQueueItems", out iTbl) && iTbl != null)
 {
-    InMemoryTable<LCCommand> tbl = (InMemoryTable<LCCommand>)iTbl;
+    InMemoryTable<LCCommand>? tbl = (InMemoryTable<LCCommand>)iTbl;
 
     Console.WriteLine($"Read {tbl.Name} Table:");
     // when we don't know the IDs
